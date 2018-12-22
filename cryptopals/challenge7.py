@@ -8,7 +8,7 @@ import base64
 def EBCdecrypt(message, key):
     cipher = AES.new(key,AES.MODE_ECB)
     #cipher =  #Salsa20.new(key)
-    plaintext = cipher.decrypt(message)s
+    plaintext = cipher.decrypt(message)
     return plaintext  # A byte string you must send to the receiver too
 
 if __name__ == '__main__':

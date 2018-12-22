@@ -1,4 +1,5 @@
 def addPadding(message, desirelength):
+    # if (type(message) != type(b'\x04')):
     strbytes = bytes(message, 'ascii')#convert the given message into bytes
     # print(len(strbytes))
     # print(len(message))

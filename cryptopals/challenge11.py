@@ -14,32 +14,53 @@ def randomAESkey():
 
 def appendbuffer(plaintext): #Under the hood, have the function append 5-10 bytes
 #  (count chosen randomly) before the plaintext and 5-10 bytes after the plaintext.
-    bufplaintext = ''
+    strbytes = bytes(plaintext, 'ascii')  # convert the given message into bytes
+    startchunk = b''
+    endchunk = b''
     startbuf = randint(5, 10)
     endbuf = randint(5, 10)
     for i in range (0, startbuf):
-        bufplaintext = bufplaintext + "\x00"
-    bufplaintext += plaintext
+        startchunk = startchunk + b'\x00'
     for i in range(0, endbuf):
-        bufplaintext = bufplaintext + "\x00"
-    return bufplaintext
+        endchunk = endchunk + b'\x00'
+    return startchunk + strbytes + endchunk
+
+def CBCencrypt(ciphertext,key,IV):
+    plaintext = b''
+    n = 16
+    chunked = [ciphertext[i:i + n] for i in range(0, len(ciphertext), n)] # chunk the ciphertext into bytes of 16
+    #print(chunked)
+    prevchunk = b''
+    for chunk in chunked:
+        echunk = challenge7.EBCencrypt(chunk, key) # pass that into EBC encrypt
+        if chunk == chunked[0]: # first chunk will XOR with IV
+            ciphertext += challenge02.XOR(echunk,IV)
+        else:
+            ciphertext += challenge02.XOR(echunk,prevchunk) # for each chunk following will XOR with previous 16 ciphertext chunk
+        prevchunk = chunk
+    return ciphertext
 
 def encryption_oracle(input): #Write a function that encrypts data under an unknown key
 #  --- that is, a function that generates a random key and encrypts under it.
     key = randomAESkey()
     input = appendbuffer(input)
-    choice = rand(2) #decide CBC or EBC
+    choice = random.randint(0,1) #decide CBC or EBC
+    input = challenge10.autoPad16(input)
+    input = input.decode("utf-8")
     if (choice == 0):
-        challenge10.EBCencrypt(input, key)
-    if (choice == 1):
-
-
-
+        print(challenge10.EBCencrypt(input, key))
+    if (choice == 1): #CBC the other half (just use random IVs each time for CBC)
+        iv = randomAESkey() #generate an IV using randomAES key
+        print(CBCencrypt(input,key,iv))
 
 
 if __name__ == '__main__':
-    print('hello')
     print(appendbuffer('hi'))
+    print(appendbuffer('thereshouldbepaddingonme'))
+
+    print(encryption_oracle("thisisaninput"))
+
+
 
 # can use challenge 8 to find the repeat
 

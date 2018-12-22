@@ -7,18 +7,23 @@
 
 import challenge01
 import challenge02
+import challenge09
+import challenge7
 import base64
+from Crypto.Cipher import AES
 
 def EBCencrypt(message, key):
     cipher = AES.new(key,AES.MODE_ECB)
     #cipher =  #Salsa20.new(key)
-    plaintext = cipher.encrypt(message)
-    return plaintext  # A byte string you must send to the receiver too
+    ciphertext = cipher.encrypt(message)
+    return ciphertext  # A byte string you must send to the receiver too
 
 def autoPad16(message): #add padding as appropriate
     if(len(message) % 16 != 0):
         mul16fits = len(message)//16 #integer division python magic
         desiredlen = 16 * (mul16fits+1)
+        if type(b'message' != string);
+            message = string(message)
         return challenge09.addPadding(message, desiredlen)
         #challenge09.addPadding(test, 64)
     return message
