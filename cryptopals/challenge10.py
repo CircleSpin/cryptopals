@@ -22,8 +22,8 @@ def autoPad16(message): #add padding as appropriate
     if(len(message) % 16 != 0):
         mul16fits = len(message)//16 #integer division python magic
         desiredlen = 16 * (mul16fits+1)
-        if type(b'message' != string);
-            message = string(message)
+        # if (type(b'message') != string):
+        #     message = string(message)
         return challenge09.addPadding(message, desiredlen)
         #challenge09.addPadding(test, 64)
     return message

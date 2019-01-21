@@ -35,9 +35,10 @@ def scoreThis(messages):
 
 def findTheOne(scores, plaintexts):
     #iterate through to find the maximum score, associated plaintext, and key
-    maxScore = 0
+    maxScore = -10000000
     plaintext = ""
     key = 0;
+    print(scores)
     for i in range (0, 255):
         if scores[i] > maxScore:
             maxScore = scores[i]
@@ -46,6 +47,11 @@ def findTheOne(scores, plaintexts):
             key = i
     #print(maxScore)
     return plaintext, key, maxScore
+
+def decodeHex(hexString):
+    plainTexts = generatePlainText(hexString)
+    scores = scoreThis(plainTexts)
+    return findTheOne(scores, plainTexts)
 
 if __name__ == '__main__':
     hexString = b'1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
